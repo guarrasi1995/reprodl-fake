@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import hydra
 from hydra.utils import get_original_cwd
+from hydra.utils import 
 from omegaconf import DictConfig
+from omegaconf import OmegaConf
 
 
 class ESC50Dataset(torch.utils.data.Dataset):
@@ -99,6 +101,9 @@ class AudioNet(pl.LightningModule):
 
 @hydra.main(config_path='configs', config_name='default')
 def train(cfg: DictConfig):
+
+    logger.info(OmegaConf.to_yaml(cgf))
+
     # We use folds 1,2,3 for training, 4 for validation, 5 for testing.
     path = get_original_cwd() / Path(cfg.data.path)
     train_data = ESC50Dataset(path=path, folds=cfg.data.train_folds)
@@ -109,7 +114,7 @@ def train(cfg: DictConfig):
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=cfg.data.batch_size)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=cfg.data.batch_size)
 
-    pl.seed_everything(cfg.trainer.seed)
+    pl.seed_everything(cfg.seed)
 
     # Test that the network works on a single mini-batch
     audionet = AudioNet(cfg.model)
